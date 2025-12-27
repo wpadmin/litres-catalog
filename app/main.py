@@ -7,9 +7,9 @@ from app.routes import router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"🚀 Запуск {settings.site_name}...")
+    print(f"Starting {settings.site_name}...")
     yield
-    print("⏹️  Остановка приложения...")
+    print("Stopping application...")
 
 
 app = FastAPI(

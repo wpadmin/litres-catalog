@@ -4,11 +4,9 @@ from datetime import datetime
 
 
 def format_price(value):
-    """Форматирует цену без лишних нулей после точки."""
+    """Форматирует цену всегда с двумя знаками после запятой."""
     if isinstance(value, (int, float)):
-        if value == int(value):
-            return f"{int(value)}"
-        return f"{value:.2f}".rstrip('0').rstrip('.')
+        return f"{value:.2f}"
     return str(value)
 
 
