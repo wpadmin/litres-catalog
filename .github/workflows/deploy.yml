@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22"
 
       - name: Install dependencies
         run: npm ci
@@ -25,7 +25,7 @@ jobs:
         run: npm run build:css
 
       - name: Deploy to server
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -35,31 +35,21 @@ jobs:
           strip_components: 0
 
       - name: Install and restart
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd ~/bigear.ru
-
-            # Activate virtual environment
-            source venv/bin/activate
-
-            # Install/update Python dependencies
+            source .venv/bin/activate
             pip install -r requirements.txt --quiet
-
-            # Run database migrations
             alembic upgrade head
-
-            # Restart application service
-            sudo systemctl restart bigear.ru
-
-            # Wait for service to start
-            sleep 5
+            sudo systemctl restart bigear
+            sleep 3
 
       - name: Health check
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
