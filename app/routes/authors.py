@@ -89,10 +89,10 @@ async def author_books_api(
     limit: int = 6,
     db: AsyncSession = Depends(get_db)
 ):
-    """API карусели с fallback на похожие книги"""
-    from sqlalchemy import select, func, and_
+    """API карусели для книг автора"""
+    from sqlalchemy import select, func
     from sqlalchemy.orm import selectinload
-    from app.models import Audiobook, Genre
+    from app.models import Audiobook
 
     service = AuthorService(db)
     author = await service.get_by_slug(slug)
@@ -100,40 +100,27 @@ async def author_books_api(
     if not author:
         return {"books": [], "has_more": False, "total": 0}
 
-    # Все книги автора
+    # Получаем общее количество книг
+    count_query = (
+        select(func.count(Audiobook.id))
+        .join(Audiobook.authors)
+        .where(Author.id == author.id)
+    )
+    total = await db.scalar(count_query)
+
+    # Получаем книги с пагинацией
     query = (
         select(Audiobook)
         .join(Audiobook.authors)
         .where(Author.id == author.id)
         .options(selectinload(Audiobook.authors), selectinload(Audiobook.genres))
         .order_by(Audiobook.created_at.desc())
+        .limit(limit)
+        .offset(offset)
     )
 
     result = await db.execute(query)
-    all_books = list(result.scalars().all())
-    total = len(all_books)
-
-    # Если мало книг — добавляем похожие
-    if total < 6 and all_books:
-        first_genres = all_books[0].genres if all_books[0].genres else []
-
-        if first_genres:
-            genre_ids = [g.id for g in first_genres]
-            similar_query = (
-                select(Audiobook)
-                .join(Audiobook.genres)
-                .join(Audiobook.authors)
-                .where(and_(Genre.id.in_(genre_ids), Author.id != author.id))
-                .options(selectinload(Audiobook.authors), selectinload(Audiobook.genres))
-                .order_by(Audiobook.created_at.desc())
-                .limit(6 - total)
-            )
-
-            result = await db.execute(similar_query)
-            all_books.extend(list(result.scalars().all()))
-
-    # Пагинация
-    books = all_books[offset:offset + limit]
+    books = list(result.scalars().all())
 
     return {
         "books": [
@@ -148,7 +135,7 @@ async def author_books_api(
             }
             for b in books
         ],
-        "has_more": total > (offset + limit),
+        "has_more": (offset + limit) < total,
         "total": total
     }
 
