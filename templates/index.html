@@ -22,7 +22,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8">
+<div class="container mx-auto py-8" x-data="topBooksScroll()">
 
     <div class="mb-12">
         <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">Аудиокниги онлайн</h1>
@@ -30,7 +30,7 @@
     </div>
 
     {% if audiobooks %}
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8" x-ref="booksGrid">
         {% for audiobook in audiobooks %}
         <div class="bg-white rounded-2xl hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-50">
             <a href="/audiobook/{{ audiobook.slug }}" class="block">
@@ -80,42 +80,65 @@
             </a>
         </div>
         {% endfor %}
-    </div>
 
-    {% if total_pages > 1 %}
-    <div class="mt-16 flex justify-center">
-        <nav class="flex items-center gap-3">
-            {% if page > 1 %}
-            <a href="/?page={{ page - 1 }}"
-               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
-                ← Назад
-            </a>
-            {% endif %}
+        <!-- Динамически загружаемые книги -->
+        <template x-for="book in books" :key="book.id">
+            <div class="bg-white rounded-2xl hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-50">
+                <a :href="`/audiobook/${book.slug}`" class="block">
+                    <div class="aspect-[2/3] relative overflow-hidden bg-gray-100">
+                        <template x-if="book.image_url">
+                            <img
+                                :src="book.image_url"
+                                :alt="book.name"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                loading="lazy"
+                            >
+                        </template>
+                        <template x-if="!book.image_url">
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+                                <svg class="w-16 h-16 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                                </svg>
+                            </div>
+                        </template>
 
-            <div class="flex gap-2">
-                {% for p in range(1, total_pages + 1) %}
-                    {% if p == page %}
-                    <span class="px-5 py-3 bg-amber-500 text-white rounded-full font-medium shadow-lg">{{ p }}</span>
-                    {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
-                    <a href="/?page={{ p }}"
-                       class="px-5 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
-                        {{ p }}
-                    </a>
-                    {% elif p == page - 3 or p == page + 3 %}
-                    <span class="px-3 py-3 text-gray-300">...</span>
-                    {% endif %}
-                {% endfor %}
+                        <template x-if="book.fragment_url">
+                            <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                </svg>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="p-4">
+                        <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug" x-text="book.name"></h2>
+
+                        <template x-if="book.authors && book.authors.length > 0">
+                            <p class="text-xs text-gray-400 mb-3 truncate font-light" x-text="book.authors[0].name"></p>
+                        </template>
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-amber-500" x-text="`${book.price.toFixed(0)} ₽`"></span>
+                            <template x-if="book.formats && book.formats.formats">
+                                <span class="text-xs text-gray-300 font-light" x-text="book.formats.formats.join(', ')"></span>
+                            </template>
+                        </div>
+                    </div>
+                </a>
             </div>
-
-            {% if page < total_pages %}
-            <a href="/?page={{ page + 1 }}"
-               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
-                Далее →
-            </a>
-            {% endif %}
-        </nav>
+        </template>
     </div>
-    {% endif %}
+
+    <!-- Индикатор загрузки -->
+    <div x-show="loading" class="mt-12 flex justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+    </div>
+
+    <!-- Сообщение о конце списка -->
+    <div x-show="!hasMore && books.length > 0" class="mt-12 text-center text-gray-400">
+        <p>Все топовые книги загружены</p>
+    </div>
 
     {% else %}
     <div class="text-center py-12">
@@ -123,4 +146,56 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function topBooksScroll() {
+    return {
+        books: [],
+        offset: {{ audiobooks|length }},
+        limit: 24,
+        loading: false,
+        hasMore: {{ audiobooks|length }} < {{ total }},
+        total: {{ total }},
+
+        init() {
+            this.setupScrollListener();
+        },
+
+        setupScrollListener() {
+            window.addEventListener('scroll', () => {
+                if (this.loading || !this.hasMore) return;
+
+                const scrollPosition = window.innerHeight + window.scrollY;
+                const pageHeight = document.documentElement.scrollHeight;
+
+                // Загружаем при приближении к концу страницы (200px до конца)
+                if (scrollPosition >= pageHeight - 200) {
+                    this.loadMore();
+                }
+            });
+        },
+
+        async loadMore() {
+            if (this.loading || !this.hasMore) return;
+
+            this.loading = true;
+
+            try {
+                const response = await fetch(`/api/top-books?offset=${this.offset}&limit=${this.limit}`);
+                const data = await response.json();
+
+                if (data.books && data.books.length > 0) {
+                    this.books.push(...data.books);
+                    this.offset += data.books.length;
+                    this.hasMore = data.has_more;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки книг:', error);
+            } finally {
+                this.loading = false;
+            }
+        }
+    };
+}
+</script>
 {% endblock %}

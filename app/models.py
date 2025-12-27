@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import String, Text, Integer, DECIMAL, DateTime, ForeignKey, Table, Column, Index, JSON
+from sqlalchemy import String, Text, Integer, DECIMAL, DateTime, ForeignKey, Table, Column, Index, JSON, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -65,6 +65,7 @@ class Audiobook(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     litres_id: Mapped[int] = mapped_column(Integer, unique=True, index=True, nullable=False)
+    is_top: Mapped[bool] = mapped_column(Boolean, default=False, index=True, nullable=False)
 
     name: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
     slug: Mapped[str] = mapped_column(String(500), unique=True, index=True, nullable=False)
