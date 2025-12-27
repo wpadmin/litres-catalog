@@ -20,6 +20,6 @@ class Settings(BaseSettings):
     site_description: str = "Аудиокниги – слушать онлайн или скачать в mp3 на Большой Ух"
 
     debug: bool = False
-
+    redis_url: str = "redis://localhost:6379/0"
 
 settings = Settings()
