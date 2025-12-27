@@ -6,6 +6,8 @@ from app.database import get_db
 from app.services.genre_service import GenreService
 from app.models import Genre
 from app.templates import templates
+from app.cache import cache_get, cache_set
+import json
 
 router = APIRouter()
 
@@ -41,15 +43,32 @@ async def genres_list(
     db: AsyncSession = Depends(get_db)
 ):
     limit = 100
-    offset = (page - 1) * limit
+    cache_key = f"genres_list_{page}"
+    cached = await cache_get(cache_key)
 
-    result = await db.execute(
-        select(Genre).where(Genre.parent_id == None).order_by(Genre.name).limit(limit).offset(offset)
-    )
-    genres = result.scalars().all()
+    if cached:
+        data = json.loads(cached)
+        genres = data["genres"]
+        total = data["total"]
+        total_pages = data["total_pages"]
+    else:
+        offset = (page - 1) * limit
 
-    total = await db.scalar(select(func.count(Genre.id)).where(Genre.parent_id == None))
-    total_pages = (total + limit - 1) // limit
+        result = await db.execute(
+            select(Genre).where(Genre.parent_id == None).order_by(Genre.name).limit(limit).offset(offset)
+        )
+        genres_objs = result.scalars().all()
+
+        total = await db.scalar(select(func.count(Genre.id)).where(Genre.parent_id == None))
+        total_pages = (total + limit - 1) // limit
+
+        cache_data = {
+            "genres": [{"id": g.id, "name": g.name, "slug": g.slug} for g in genres_objs],
+            "total": total,
+            "total_pages": total_pages
+        }
+        await cache_set(cache_key, json.dumps(cache_data), ttl=600)
+        genres = cache_data["genres"]
 
     return templates.TemplateResponse(
         "genres_list.html",
@@ -80,11 +99,37 @@ async def genre_detail(
             status_code=404
         )
 
-    audiobooks, total_pages = await service.get_audiobooks_paginated(
-        genre_id=genre.id,
-        page=page,
-        limit=24
-    )
+    cache_key = f"genre_{slug}_books_{page}"
+    cached = await cache_get(cache_key)
+
+    if cached:
+        data = json.loads(cached)
+        audiobooks = data["audiobooks"]
+        total_pages = data["total_pages"]
+    else:
+        audiobooks_objs, total_pages = await service.get_audiobooks_paginated(
+            genre_id=genre.id,
+            page=page,
+            limit=24
+        )
+
+        cache_data = {
+            "audiobooks": [
+                {
+                    "id": book.id,
+                    "name": book.name,
+                    "slug": book.slug,
+                    "image_url": book.image_url,
+                    "price": float(book.price) if book.price else 0,
+                    "fragment_url": book.fragment_url,
+                    "formats": book.formats,
+                    "authors": [{"name": a.name, "slug": a.slug} for a in book.authors] if book.authors else [],
+                } for book in audiobooks_objs
+            ],
+            "total_pages": total_pages
+        }
+        await cache_set(cache_key, json.dumps(cache_data), ttl=600)
+        audiobooks = cache_data["audiobooks"]
 
     return templates.TemplateResponse(
         "genre_detail.html",

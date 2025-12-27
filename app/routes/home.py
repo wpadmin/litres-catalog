@@ -27,19 +27,19 @@ async def home(
         # Если кеша нет - запрос к БД
         service = AudiobookService(db)
         audiobooks, total_pages = await service.get_paginated(page=page, limit=24)
-        
+
         # Сохраняем в кеш на 5 минут (ttl=300)
         cache_data = {
             "audiobooks": [
                 {
                     "id": book.id,
-                    "title": book.title,
+                    "name": book.name,
                     "slug": book.slug,
-                    "cover_url": book.cover_url,
-                    "rating": book.rating,
-                    "author_name": book.author_name,
-                    "author_slug": book.author_slug,
-                    "duration": book.duration,
+                    "image_url": book.image_url,
+                    "price": float(book.price) if book.price else 0,
+                    "fragment_url": book.fragment_url,
+                    "formats": book.formats,
+                    "authors": [{"name": author.name, "slug": author.slug} for author in book.authors] if book.authors else [],
                 } for book in audiobooks
             ],
             "total_pages": total_pages

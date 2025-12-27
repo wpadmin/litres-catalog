@@ -6,6 +6,8 @@ from app.database import get_db
 from app.services.author_service import AuthorService
 from app.models import Author
 from app.templates import templates
+from app.cache import cache_get, cache_set
+import json
 
 router = APIRouter()
 
@@ -41,15 +43,32 @@ async def authors_list(
     db: AsyncSession = Depends(get_db)
 ):
     limit = 100
-    offset = (page - 1) * limit
+    cache_key = f"authors_list_{page}"
+    cached = await cache_get(cache_key)
 
-    result = await db.execute(
-        select(Author).order_by(Author.name).limit(limit).offset(offset)
-    )
-    authors = result.scalars().all()
+    if cached:
+        data = json.loads(cached)
+        authors = data["authors"]
+        total = data["total"]
+        total_pages = data["total_pages"]
+    else:
+        offset = (page - 1) * limit
 
-    total = await db.scalar(select(func.count(Author.id)))
-    total_pages = (total + limit - 1) // limit
+        result = await db.execute(
+            select(Author).order_by(Author.name).limit(limit).offset(offset)
+        )
+        authors_objs = result.scalars().all()
+
+        total = await db.scalar(select(func.count(Author.id)))
+        total_pages = (total + limit - 1) // limit
+
+        cache_data = {
+            "authors": [{"id": a.id, "name": a.name, "slug": a.slug} for a in authors_objs],
+            "total": total,
+            "total_pages": total_pages
+        }
+        await cache_set(cache_key, json.dumps(cache_data), ttl=600)
+        authors = cache_data["authors"]
 
     return templates.TemplateResponse(
         "authors_list.html",
@@ -151,11 +170,37 @@ async def author_detail(
             status_code=404
         )
 
-    audiobooks, total_pages = await service.get_audiobooks_paginated(
-        author_id=author.id,
-        page=page,
-        limit=24
-    )
+    cache_key = f"author_{slug}_books_{page}"
+    cached = await cache_get(cache_key)
+
+    if cached:
+        data = json.loads(cached)
+        audiobooks = data["audiobooks"]
+        total_pages = data["total_pages"]
+    else:
+        audiobooks_objs, total_pages = await service.get_audiobooks_paginated(
+            author_id=author.id,
+            page=page,
+            limit=24
+        )
+
+        cache_data = {
+            "audiobooks": [
+                {
+                    "id": book.id,
+                    "name": book.name,
+                    "slug": book.slug,
+                    "image_url": book.image_url,
+                    "price": float(book.price) if book.price else 0,
+                    "fragment_url": book.fragment_url,
+                    "formats": book.formats,
+                    "authors": [{"name": a.name, "slug": a.slug} for a in book.authors] if book.authors else [],
+                } for book in audiobooks_objs
+            ],
+            "total_pages": total_pages
+        }
+        await cache_set(cache_key, json.dumps(cache_data), ttl=600)
+        audiobooks = cache_data["audiobooks"]
 
     return templates.TemplateResponse(
         "author_detail.html",
