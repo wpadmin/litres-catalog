@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена – Большой Ух{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-amber-50 to-white px-4">
+    <div class="text-center">
+        <h1 class="text-9xl font-bold text-amber-500 mb-4">404</h1>
+        <p class="text-2xl font-light text-gray-600 mb-8">Страница не найдена</p>
+        <p class="text-gray-500 mb-8 max-w-md mx-auto">
+            К сожалению, запрашиваемая страница не существует.
+            Возможно, она была удалена или вы ошиблись в адресе.
+        </p>
+        <a
+            href="/"
+            class="inline-block bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-full font-medium transition shadow-lg hover:shadow-xl"
+        >
+            Вернуться на главную
+        </a>
+    </div>
+</div>
+{% endblock %}

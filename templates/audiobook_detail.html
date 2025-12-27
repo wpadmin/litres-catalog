@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block title %}Аудиокнига {{ audiobook.name }}{% if audiobook.authors %}, {{ audiobook.authors[0].name }}{% endif %} купить – слушать онлайн или скачать на Большой Ух{% endblock %}
+
+{% block description %}Скачать аудиокнигу «{{ audiobook.name }}»{% if audiobook.authors %}, {{ audiobook.authors[0].name }}{% endif %} в формате mp3 или слушать онлайн! Скачивайте и слушайте лучшие аудиокниги на Большой Ух.{% endblock %}
+
+{% block og_title %}Аудиокнига {{ audiobook.name }}{% if audiobook.authors %} – {{ audiobook.authors[0].name }}{% endif %}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}
+{% if audiobook.image_url %}
+<meta property="og:image" content="{{ audiobook.image_url }}">
+<meta property="og:image:width" content="415">
+<meta property="og:image:height" content="622">
+{% endif %}
+<meta property="product:price:amount" content="{{ audiobook.price }}">
+<meta property="product:price:currency" content="RUB">
+{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ audiobook.name }}",
+  "description": {{ audiobook.description|tojson if audiobook.description else '""' }},
+  {% if audiobook.image_url %}
+  "image": "{{ audiobook.image_url }}",
+  {% endif %}
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.url }}",
+    "priceCurrency": "RUB",
+    "price": "{{ audiobook.price }}",
+    "availability": "https://schema.org/InStock",
+    "seller": {
+      "@type": "Organization",
+      "name": "Большой Ух"
+    }
+  },
+  {% if audiobook.authors %}
+  "author": {
+    "@type": "Person",
+    "name": "{{ audiobook.authors[0].name }}"
+  },
+  {% endif %}
+  "inLanguage": "ru",
+  "bookFormat": "https://schema.org/AudiobookFormat"
+}
+</script>
+
+{% if audiobook.description %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Главная",
+      "item": "https://bigear.ru/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ audiobook.name }}",
+      "item": "{{ request.url }}"
+    }
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white">
+    <div class="container mx-auto py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+            <div class="flex justify-center lg:justify-end">
+                <div class="w-full max-w-md">
+                    {% if audiobook.image_url %}
+                    <img
+                        src="{{ audiobook.image_url }}"
+                        alt="{{ audiobook.name }}"
+                        class="w-full rounded-3xl shadow-2xl"
+                    >
+                    {% else %}
+                    <div class="w-full aspect-[2/3] bg-gradient-to-br from-amber-400 to-orange-600 rounded-3xl shadow-2xl flex items-center justify-center">
+                        <svg class="w-32 h-32 text-white opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-center space-y-6">
+                <div>
+                    {% if audiobook.authors %}
+                    <a href="/author/{{ audiobook.authors[0].slug }}" class="text-lg text-gray-500 hover:text-amber-500 transition font-light">
+                        {{ audiobook.authors[0].name }}
+                    </a>
+                    {% endif %}
+
+                    <h1 class="text-4xl lg:text-5xl text-gray-900 mt-2 mb-4 tracking-tight leading-tight">
+                        {{ audiobook.name }}
+                    </h1>
+
+                    {% if audiobook.genres %}
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        {% for genre in audiobook.genres %}
+                        <a href="/genre/{{ genre.slug }}" class="px-4 py-1.5 bg-gray-100 hover:bg-amber-100 hover:text-amber-600 text-gray-600 rounded-full text-sm transition">
+                            {{ genre.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if audiobook.description %}
+                <div class="prose prose-lg max-w-none">
+                    <p>{{ audiobook.description }}</p>
+                </div>
+                {% endif %}
+
+                <div class="bg-gray-50 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-baseline gap-3">
+                        <span class="text-5xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                        {% if audiobook.formats and audiobook.formats.formats %}
+                        <span class="text-sm text-gray-400">{{ audiobook.formats.formats|join(', ') }}</span>
+                        {% endif %}
+                    </div>
+
+                    <a
+                        href="{{ audiobook.url }}"
+                        target="_blank"
+                        rel="nofollow noopener"
+                        class="block w-full bg-amber-500 hover:bg-amber-600 text-white text-center px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+                    >
+                        Купить и скачать на ЛитРес
+                    </a>
+
+                    {% if audiobook.fragment_url %}
+                    <div x-data="{ playing: false }" class="pt-4 border-t border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <button
+                                @click="playing = !playing"
+                                class="flex-shrink-0 w-12 h-12 bg-white border-2 border-amber-500 rounded-full flex items-center justify-center hover:bg-amber-50 transition"
+                            >
+                                <svg x-show="!playing" class="w-6 h-6 text-amber-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                </svg>
+                                <svg x-show="playing" x-cloak class="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V4z"/>
+                                </svg>
+                            </button>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Прослушать фрагмент</p>
+                                <p class="text-xs text-gray-500">Бесплатный отрывок аудиокниги</p>
+                            </div>
+                        </div>
+
+                        <audio x-ref="audioPlayer" class="w-full mt-4" controls x-show="playing" x-cloak>
+                            <source src="{{ audiobook.fragment_url }}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-sm text-gray-500 bg-amber-50 rounded-xl p-4">
+                    <p class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="leading-relaxed">
+                            При покупке вы будете перенаправлены на сайт партнера ЛитРес.
+                            Все транзакции защищены и безопасны.
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if audiobook.text_versions %}
+<div class="bg-gray-50 py-16">
+    <div class="container mx-auto">
+        <h2 class="text-4xl lg:text-5xl text-gray-900 mb-8">У этой аудиокниги есть текстовая версия</h2>
+
+        <div class="space-y-4">
+            {% for book in audiobook.text_versions %}
+            <div class="bg-white rounded-lg p-6 hover:shadow-md transition border border-gray-100">
+                <div class="flex gap-6">
+                    {% if book.image_url %}
+                    <img src="{{ book.image_url }}" alt="{{ book.name }}" class="w-24 h-32 object-cover rounded">
+                    {% endif %}
+
+                    <div class="flex-1">
+                        <h3 class="text-lg text-gray-900 mb-2">{{ book.name }}</h3>
+
+                        <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                            {% if book.publisher %}
+                            <span>Издательство: {{ book.publisher }}</span>
+                            {% endif %}
+                            {% if book.year %}
+                            <span>Год: {{ book.year }}</span>
+                            {% endif %}
+                            {% if book.formats %}
+                            <span>Форматы: {{ book.formats }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if book.description %}
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ book.description }}</p>
+                        {% endif %}
+
+                        <div class="flex items-center gap-4">
+                            {% if book.price %}
+                            <span class="text-2xl font-bold text-amber-500">{{ book.price }} ₽</span>
+                            {% endif %}
+                            <a
+                                href="{{ book.url }}"
+                                target="_blank"
+                                rel="nofollow noopener"
+                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-medium transition"
+                            >
+                                Купить на ЛитРес
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if audiobook.authors and audiobook.authors|length > 0 %}
+<div class="bg-gray-50 py-16">
+    <div class="container mx-auto">
+        <h2 class="text-3xl text-gray-900 mb-8">Другие книги автора</h2>
+        <p class="text-gray-500 text-lg mb-8">
+            Посмотрите все аудиокниги автора
+            <a href="/author/{{ audiobook.authors[0].slug }}" class="text-amber-500 hover:text-amber-600 font-medium">
+                {{ audiobook.authors[0].name }}
+            </a>
+        </p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

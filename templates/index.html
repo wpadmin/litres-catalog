@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Большой Ух – Аудиокниги слушать онлайн или скачать в mp3{% endblock %}
+
+{% block description %}Партнерский сервис Большой Ух дает доступ к тысячам аудиокниг в формате mp3, mp4. Скачивайте или слушайте онлайн аудиокниги на любых устройствах. Лучшие книги, известные авторы.{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Большой Ух",
+  "url": "{{ request.base_url }}",
+  "description": "Аудиокниги – слушать онлайн или скачать в mp3",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.base_url }}search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+
+    <div class="mb-12">
+        <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">Аудиокниги онлайн</h1>
+        <p class="text-xl text-gray-500 font-light">Скачивайте или слушайте онлайн лучшие аудиокниги в формате mp3</p>
+    </div>
+
+    {% if audiobooks %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
+        {% for audiobook in audiobooks %}
+        <div class="bg-white rounded-2xl hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-50">
+            <a href="/audiobook/{{ audiobook.slug }}" class="block">
+                <div class="aspect-[2/3] relative overflow-hidden bg-gray-100">
+                    {% if audiobook.image_url %}
+                    <img
+                        src="{{ audiobook.image_url }}"
+                        alt="{{ audiobook.name }}"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        loading="lazy"
+                    >
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+                        <svg class="w-16 h-16 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+
+                    {% if audiobook.fragment_url %}
+                    <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-4">
+                    <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug">
+                        {{ audiobook.name }}
+                    </h2>
+
+                    {% if audiobook.authors %}
+                    <p class="text-xs text-gray-400 mb-3 truncate font-light">
+                        {{ audiobook.authors[0].name }}
+                    </p>
+                    {% endif %}
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                        {% if audiobook.formats and audiobook.formats.formats %}
+                        <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if total_pages > 1 %}
+    <div class="mt-16 flex justify-center">
+        <nav class="flex items-center gap-3">
+            {% if page > 1 %}
+            <a href="/?page={{ page - 1 }}"
+               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                ← Назад
+            </a>
+            {% endif %}
+
+            <div class="flex gap-2">
+                {% for p in range(1, total_pages + 1) %}
+                    {% if p == page %}
+                    <span class="px-5 py-3 bg-amber-500 text-white rounded-full font-medium shadow-lg">{{ p }}</span>
+                    {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+                    <a href="/?page={{ p }}"
+                       class="px-5 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                        {{ p }}
+                    </a>
+                    {% elif p == page - 3 or p == page + 3 %}
+                    <span class="px-3 py-3 text-gray-300">...</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if page < total_pages %}
+            <a href="/?page={{ page + 1 }}"
+               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                Далее →
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-12">
+        <p class="text-gray-500 text-lg">Аудиокниги не найдены</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

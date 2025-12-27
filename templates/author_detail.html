@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Все книги {{ author.name }} — скачать и слушать онлайн аудиокниги автора на Большой Ух{% endblock %}
+
+{% block description %}Аудиокниги автора {{ author.name }} – скачать в mp3 или слушать онлайн. Полный каталог произведений {{ author.name }} на Большой Ух. Лучшие цены и качество.{% endblock %}
+
+{% block schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "{{ author.name }}",
+  "url": "{{ request.url }}",
+  "sameAs": []
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Главная",
+      "item": "https://bigear.ru/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Авторы",
+      "item": "https://bigear.ru/authors"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ author.name }}",
+      "item": "{{ request.url }}"
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-b from-amber-50 to-white py-16">
+    <div class="container mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">{{ author.name }}</h1>
+            <p class="text-xl text-gray-500 font-light">Аудиокниги автора – слушать онлайн или скачать в mp3</p>
+        </div>
+
+        <!-- Карусель других книг автора -->
+        <div class="mb-16" x-data="carousel('{{ author.slug }}')">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Другие книги автора</h2>
+                <div class="flex gap-2">
+                    <button
+                        type="button"
+                        aria-label="Предыдущие книги"
+                        @click="prev()"
+                        :disabled="offset === 0"
+                        :class="offset === 0 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-white'"
+                        class="p-2 rounded-full border border-gray-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        aria-label="Следующие книги"
+                        @click="next()"
+                        :disabled="!hasMore"
+                        :class="!hasMore ? 'opacity-30 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-white'"
+                        class="p-2 rounded-full border border-gray-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <template x-for="book in books" :key="book.slug">
+                        <a :href="'/audiobook/' + book.slug" class="bg-white rounded-lg hover:shadow-lg transition-all overflow-hidden group border border-gray-50">
+                            <div class="aspect-[2/3] relative overflow-hidden bg-gray-100">
+                                <img
+                                    :src="book.image_url || '/static/placeholder.jpg'"
+                                    :alt="book.name"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                    loading="lazy"
+                                >
+                                <div x-show="book.fragment_url" class="absolute bottom-2 right-2 bg-amber-500 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="text-sm font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-amber-500 transition" x-text="book.name"></h3>
+                                <p class="text-xs text-gray-400 mb-2 truncate" x-text="book.genres[0] || ''"></p>
+                                <span class="text-lg font-bold text-amber-500" x-text="book.price + ' ₽'"></span>
+                            </div>
+                        </a>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function carousel(authorSlug) {
+            return {
+                books: [],
+                offset: 0,
+                limit: 6,
+                hasMore: true,
+                loading: false,
+
+                init() {
+                    this.loadBooks();
+                },
+
+                async loadBooks() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch(`/api/author/${authorSlug}/books?offset=${this.offset}&limit=${this.limit}`);
+                        const data = await response.json();
+                        this.books = data.books;
+                        this.hasMore = data.has_more;
+                    } catch (error) {
+                        console.error('Ошибка загрузки:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                next() {
+                    if (this.hasMore) {
+                        this.offset += this.limit;
+                        this.loadBooks();
+                    }
+                },
+
+                prev() {
+                    if (this.offset >= this.limit) {
+                        this.offset -= this.limit;
+                        this.loadBooks();
+                    }
+                }
+            }
+        }
+        </script>
+
+        {% if audiobooks %}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
+            {% for audiobook in audiobooks %}
+            <div class="bg-white rounded-2xl hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-50">
+                <a href="/audiobook/{{ audiobook.slug }}" class="block">
+                    <div class="aspect-[2/3] relative overflow-hidden bg-gray-100">
+                        {% if audiobook.image_url %}
+                        <img
+                            src="{{ audiobook.image_url }}"
+                            alt="{{ audiobook.name }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            loading="lazy"
+                        >
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-600">
+                            <svg class="w-16 h-16 text-white opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+
+                        {% if audiobook.fragment_url %}
+                        <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="p-4">
+                        <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug">
+                            {{ audiobook.name }}
+                        </h2>
+
+                        {% if audiobook.genres %}
+                        <p class="text-xs text-gray-400 mb-3 truncate font-light">
+                            {{ audiobook.genres[0].name }}
+                        </p>
+                        {% endif %}
+
+                        <div class="flex items-center justify-between">
+                            <span class="text-xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                            {% if audiobook.formats and audiobook.formats.formats %}
+                            <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="mt-16 flex justify-center">
+            <nav class="flex items-center gap-3">
+                {% if page > 1 %}
+                <a href="/author/{{ author.slug }}?page={{ page - 1 }}"
+                   class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                    ← Назад
+                </a>
+                {% endif %}
+
+                <div class="flex gap-2">
+                    {% for p in range(1, total_pages + 1) %}
+                        {% if p == page %}
+                        <span class="px-5 py-3 bg-amber-500 text-white rounded-full font-medium shadow-lg">{{ p }}</span>
+                        {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
+                        <a href="/author/{{ author.slug }}?page={{ p }}"
+                           class="px-5 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                            {{ p }}
+                        </a>
+                        {% elif p == page - 3 or p == page + 3 %}
+                        <span class="px-3 py-3 text-gray-300">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if page < total_pages %}
+                <a href="/author/{{ author.slug }}?page={{ page + 1 }}"
+                   class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                    Далее →
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-500 text-lg">Аудиокниги автора пока не добавлены</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func
+from app.database import get_db
+from app.services.author_service import AuthorService
+from app.models import Author
+from app.templates import templates
+
+router = APIRouter()
+
+
+@router.get("/api/authors", response_class=JSONResponse, name="authors_list_api")
+async def authors_list_api(
+    request: Request,
+    page: int = 1,
+    limit: int = 50,
+    db: AsyncSession = Depends(get_db)
+):
+    offset = (page - 1) * limit
+
+    result = await db.execute(
+        select(Author).order_by(Author.name).limit(limit).offset(offset)
+    )
+    authors = result.scalars().all()
+
+    total = await db.scalar(select(func.count(Author.id)))
+
+    return {
+        "authors": [{"name": a.name, "slug": a.slug} for a in authors],
+        "total": total,
+        "page": page,
+        "pages": (total + limit - 1) // limit
+    }
+
+
+@router.get("/authors", response_class=HTMLResponse, name="authors_list")
+async def authors_list(
+    request: Request,
+    page: int = 1,
+    db: AsyncSession = Depends(get_db)
+):
+    limit = 100
+    offset = (page - 1) * limit
+
+    result = await db.execute(
+        select(Author).order_by(Author.name).limit(limit).offset(offset)
+    )
+    authors = result.scalars().all()
+
+    total = await db.scalar(select(func.count(Author.id)))
+    total_pages = (total + limit - 1) // limit
+
+    return templates.TemplateResponse(
+        "authors_list.html",
+        {
+            "request": request,
+            "authors": authors,
+            "page": page,
+            "total_pages": total_pages,
+            "total": total,
+        }
+    )
+
+
+@router.get("/api/author/{slug}/books", response_class=JSONResponse)
+async def author_books_api(
+    slug: str,
+    offset: int = 0,
+    limit: int = 6,
+    db: AsyncSession = Depends(get_db)
+):
+    """API карусели с fallback на похожие книги"""
+    from sqlalchemy import select, func, and_
+    from sqlalchemy.orm import selectinload
+    from app.models import Audiobook, Genre
+
+    service = AuthorService(db)
+    author = await service.get_by_slug(slug)
+
+    if not author:
+        return {"books": [], "has_more": False, "total": 0}
+
+    # Все книги автора
+    query = (
+        select(Audiobook)
+        .join(Audiobook.authors)
+        .where(Author.id == author.id)
+        .options(selectinload(Audiobook.authors), selectinload(Audiobook.genres))
+        .order_by(Audiobook.created_at.desc())
+    )
+
+    result = await db.execute(query)
+    all_books = list(result.scalars().all())
+    total = len(all_books)
+
+    # Если мало книг — добавляем похожие
+    if total < 6 and all_books:
+        first_genres = all_books[0].genres if all_books[0].genres else []
+
+        if first_genres:
+            genre_ids = [g.id for g in first_genres]
+            similar_query = (
+                select(Audiobook)
+                .join(Audiobook.genres)
+                .join(Audiobook.authors)
+                .where(and_(Genre.id.in_(genre_ids), Author.id != author.id))
+                .options(selectinload(Audiobook.authors), selectinload(Audiobook.genres))
+                .order_by(Audiobook.created_at.desc())
+                .limit(6 - total)
+            )
+
+            result = await db.execute(similar_query)
+            all_books.extend(list(result.scalars().all()))
+
+    # Пагинация
+    books = all_books[offset:offset + limit]
+
+    return {
+        "books": [
+            {
+                "slug": b.slug,
+                "name": b.name,
+                "image_url": b.image_url,
+                "price": float(b.price),
+                "genres": [g.name for g in b.genres] if b.genres else [],
+                "fragment_url": b.fragment_url,
+                "authors": [a.name for a in b.authors],
+            }
+            for b in books
+        ],
+        "has_more": total > (offset + limit),
+        "total": total
+    }
+
+
+@router.get("/author/{slug}", response_class=HTMLResponse, name="author_detail")
+async def author_detail(
+    slug: str,
+    request: Request,
+    page: int = 1,
+    db: AsyncSession = Depends(get_db)
+):
+    service = AuthorService(db)
+    author = await service.get_by_slug(slug)
+
+    if not author:
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request},
+            status_code=404
+        )
+
+    audiobooks, total_pages = await service.get_audiobooks_paginated(
+        author_id=author.id,
+        page=page,
+        limit=24
+    )
+
+    return templates.TemplateResponse(
+        "author_detail.html",
+        {
+            "request": request,
+            "author": author,
+            "audiobooks": audiobooks,
+            "page": page,
+            "total_pages": total_pages,
+        }
+    )
