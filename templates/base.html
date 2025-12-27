@@ -26,14 +26,17 @@
     <link rel="stylesheet" href="/static/css/output.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body class="bg-indigo-50 text-gray-900 antialiased">
 
     <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="container mx-auto">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-amber-500 hover:text-amber-600 transition tracking-tight">
-                        🎧 Большой Ух
+                    <a href="/" class="flex items-center gap-1 hover:opacity-90 transition">
+                        <img src="/static/bigEar-logo.png" alt="Большой Ух" class="h-12 w-auto">
+                        <span class="text-2xl font-bold tracking-tight">
+                            <span class="text-indigo-600">Большой</span> <span class="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">Ух</span>
+                        </span>
                     </a>
                 </div>
 
@@ -73,10 +76,25 @@
                     </div>
                 </div>
 
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-600 hover:text-amber-500 transition font-medium">Каталог</a>
-                    <a href="/genres" class="text-gray-600 hover:text-amber-500 transition font-medium">Жанры</a>
-                    <a href="/authors" class="text-gray-600 hover:text-amber-500 transition font-medium">Авторы</a>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="flex items-center gap-2 text-indigo-600 hover:text-yellow-500 transition font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <span>Каталог</span>
+                    </a>
+                    <a href="/genres" class="flex items-center gap-2 text-indigo-600 hover:text-yellow-500 transition font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                        <span>Жанры</span>
+                    </a>
+                    <a href="/authors" class="flex items-center gap-2 text-indigo-600 hover:text-yellow-500 transition font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <span>Авторы</span>
+                    </a>
                 </nav>
             </div>
         </div>
@@ -86,36 +104,36 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-white border-t border-gray-100 mt-24">
+    <footer class="bg-indigo-950 mt-24">
         <div class="container mx-auto py-16">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div>
-                    <h3 class="text-gray-900 text-lg font-semibold mb-4">Большой Ух</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">
+                    <h3 class="text-indigo-100 text-xl font-semibold mb-4">Большой Ух</h3>
+                    <p class="text-sm text-indigo-100 leading-relaxed">
                         Партнерский сервис для поиска и прослушивания аудиокниг.
                         Тысячи аудиокниг в формате mp3 от лучших авторов.
                     </p>
                 </div>
 
                 <div>
-                    <h3 class="text-gray-900 text-lg font-semibold mb-4">Навигация</h3>
+                    <h3 class="text-indigo-100 text-xl font-semibold mb-4">Навигация</h3>
                     <ul class="space-y-3 text-sm">
-                        <li><a href="/" class="text-gray-600 hover:text-amber-500 transition">Каталог</a></li>
-                        <li><a href="/genres" class="text-gray-600 hover:text-amber-500 transition">Жанры</a></li>
-                        <li><a href="/authors" class="text-gray-600 hover:text-amber-500 transition">Авторы</a></li>
+                        <li><a href="/" class="text-indigo-100 hover:text-yellow-500 transition">Каталог</a></li>
+                        <li><a href="/genres" class="text-indigo-100 hover:text-yellow-500 transition">Жанры</a></li>
+                        <li><a href="/authors" class="text-indigo-100 hover:text-yellow-500 transition">Авторы</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-gray-900 text-lg font-semibold mb-4">Информация</h3>
-                    <p class="text-sm text-gray-600 leading-relaxed">
+                    <h3 class="text-indigo-100 text-xl font-semibold mb-4">Информация</h3>
+                    <p class="text-sm text-indigo-100 leading-relaxed">
                         Все аудиокниги представлены в партнерстве с ЛитРес.
                         При покупке вы будете перенаправлены на сайт партнера.
                     </p>
                 </div>
             </div>
 
-            <div class="mt-12 pt-8 border-t border-gray-100 text-center text-sm text-gray-500">
+            <div class="mt-12 pt-8 border-t border-indigo-900 text-center text-sm text-indigo-100">
                 <p>© «Большой Ух», {{ now().year }}</p>
             </div>
         </div>

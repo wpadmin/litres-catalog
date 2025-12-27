@@ -42,7 +42,7 @@
                     {% endif %}
 
                     {% if audiobook.fragment_url %}
-                    <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                    <div class="absolute bottom-3 right-3 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                         </svg>
@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="p-4">
-                    <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug">
+                    <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent transition leading-snug">
                         {{ audiobook.name }}
                     </h2>
 
@@ -62,7 +62,7 @@
                     {% endif %}
 
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
+                        <span class="text-xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
@@ -78,7 +78,7 @@
         <nav class="flex items-center gap-3">
             {% if page > 1 %}
             <a href="/search?q={{ query }}&page={{ page - 1 }}"
-               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-yellow-500 transition font-medium">
                 ← Назад
             </a>
             {% endif %}
@@ -86,10 +86,10 @@
             <div class="flex gap-2">
                 {% for p in range(1, total_pages + 1) %}
                     {% if p == page %}
-                    <span class="px-5 py-3 bg-amber-500 text-white rounded-full font-medium shadow-lg">{{ p }}</span>
+                    <span class="px-5 py-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-full font-medium shadow-lg">{{ p }}</span>
                     {% elif p == 1 or p == total_pages or (p >= page - 2 and p <= page + 2) %}
                     <a href="/search?q={{ query }}&page={{ p }}"
-                       class="px-5 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+                       class="px-5 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-yellow-500 transition font-medium">
                         {{ p }}
                     </a>
                     {% elif p == page - 3 or p == page + 3 %}
@@ -100,7 +100,7 @@
 
             {% if page < total_pages %}
             <a href="/search?q={{ query }}&page={{ page + 1 }}"
-               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-amber-500 transition font-medium">
+               class="px-6 py-3 border border-gray-200 rounded-full text-gray-600 hover:bg-gray-50 hover:border-yellow-500 transition font-medium">
                 Далее →
             </a>
             {% endif %}

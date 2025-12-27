@@ -98,7 +98,10 @@
             <div class="flex flex-col justify-center space-y-6">
                 <div>
                     {% if audiobook.authors %}
-                    <a href="/author/{{ audiobook.authors[0].slug }}" class="text-lg text-gray-500 hover:text-amber-500 transition font-light">
+                    <a href="/author/{{ audiobook.authors[0].slug }}" class="flex items-center gap-2 text-lg text-gray-500 hover:text-indigo-600 transition font-light">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
                         {{ audiobook.authors[0].name }}
                     </a>
                     {% endif %}
@@ -126,7 +129,7 @@
 
                 <div class="bg-gray-50 rounded-2xl p-6 space-y-4">
                     <div class="flex items-baseline gap-3">
-                        <span class="text-5xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
+                        <span class="text-5xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-sm text-gray-400">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
@@ -136,7 +139,7 @@
                         href="{{ audiobook.url }}"
                         target="_blank"
                         rel="nofollow noopener"
-                        class="block w-full bg-amber-500 hover:bg-amber-600 text-white text-center px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+                        class="block w-full bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white text-center px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
                     >
                         Купить и скачать на ЛитРес
                     </a>
@@ -146,13 +149,10 @@
                         <div class="flex items-center gap-4">
                             <button
                                 @click="playing = !playing"
-                                class="flex-shrink-0 w-12 h-12 bg-white border-2 border-amber-500 rounded-full flex items-center justify-center hover:bg-amber-50 transition"
+                                class="flex-shrink-0 w-12 h-12 bg-amber-500 hover:bg-amber-600 rounded-full flex items-center justify-center transition shadow-md"
                             >
-                                <svg x-show="!playing" class="w-6 h-6 text-amber-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                                </svg>
-                                <svg x-show="playing" x-cloak class="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V4z"/>
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
                                 </svg>
                             </button>
                             <div class="flex-1">
@@ -170,8 +170,8 @@
 
                 <div class="text-sm text-gray-500 bg-amber-50 rounded-xl p-4">
                     <p class="flex items-start gap-2">
-                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <span class="leading-relaxed">
                             При покупке вы будете перенаправлены на сайт партнера ЛитРес.
@@ -218,13 +218,13 @@
 
                         <div class="flex items-center gap-4">
                             {% if book.price %}
-                            <span class="text-2xl font-bold text-amber-500">{{ book.price|price }} ₽</span>
+                            <span class="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ book.price|price }} ₽</span>
                             {% endif %}
                             <a
                                 href="{{ book.url }}"
                                 target="_blank"
                                 rel="nofollow noopener"
-                                class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-full font-medium transition"
+                                class="px-6 py-2 bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white rounded-full font-medium transition"
                             >
                                 Купить на ЛитРес
                             </a>
@@ -244,7 +244,7 @@
         <h2 class="text-3xl text-gray-900 mb-8">Другие книги автора</h2>
         <p class="text-gray-500 text-lg mb-8">
             Посмотрите все аудиокниги автора
-            <a href="/author/{{ audiobook.authors[0].slug }}" class="text-amber-500 hover:text-amber-600 font-medium">
+            <a href="/author/{{ audiobook.authors[0].slug }}" class="bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent hover:text-amber-600 font-medium">
                 {{ audiobook.authors[0].name }}
             </a>
         </p>
@@ -264,7 +264,7 @@
                                             loading="lazy"
                                         >
                                         <template x-if="book.fragment_url">
-                                            <div class="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                                            <div class="absolute top-3 right-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
                                                 Есть фрагмент
                                             </div>
                                         </template>
@@ -278,7 +278,7 @@
                                             <p class="text-xs text-gray-400 mb-3 line-clamp-1" x-text="book.genres.join(', ')"></p>
                                         </template>
                                         <div class="flex items-center justify-between">
-                                            <span class="text-xl font-bold text-amber-500" x-text="formatPrice(book.price) + ' ₽'"></span>
+                                            <span class="text-xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent" x-text="formatPrice(book.price) + ' ₽'"></span>
                                         </div>
                                     </div>
                                 </a>
@@ -291,7 +291,7 @@
             <template x-if="currentIndex > 0">
                 <button
                     @click="prev"
-                    class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-500"
+                    class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent"
                 >
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -302,7 +302,7 @@
             <template x-if="canGoNext()">
                 <button
                     @click="next"
-                    class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-500"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent"
                 >
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -312,7 +312,7 @@
 
             <template x-if="loading">
                 <div class="text-center py-8">
-                    <div class="inline-block w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div class="inline-block w-8 h-8 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
             </template>
         </div>

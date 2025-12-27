@@ -16,10 +16,13 @@ from app.models import Audiobook
 
 
 async def mark_top_books():
-    csv_path = Path(__file__).parent.parent / "litresru-top.csv"
+    # Пробуем найти CSV в разных местах
+    csv_path = Path("/tmp/litresru-top.csv")
+    if not csv_path.exists():
+        csv_path = Path(__file__).parent.parent / "litresru-top.csv"
 
     if not csv_path.exists():
-        print(f"ОШИБКА: Файл {csv_path} не найден!")
+        print(f"ОШИБКА: Файл litresru-top.csv не найден ни в /tmp/, ни в корне проекта!")
         return
 
     # Читаем CSV с топ-500

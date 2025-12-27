@@ -51,7 +51,7 @@
                     {% endif %}
 
                     {% if audiobook.fragment_url %}
-                    <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                    <div class="absolute bottom-3 right-3 bg-gradient-to-br from-indigo-500 to-indigo-700 group-hover:from-indigo-700 group-hover:to-indigo-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg">
                         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                         </svg>
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="p-4">
-                    <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug">
+                    <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent transition leading-snug">
                         {{ audiobook.name }}
                     </h2>
 
@@ -71,7 +71,7 @@
                     {% endif %}
 
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
+                        <span class="text-xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
@@ -103,7 +103,7 @@
                         </template>
 
                         <template x-if="book.fragment_url">
-                            <div class="absolute bottom-3 right-3 bg-amber-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                            <div class="absolute bottom-3 right-3 bg-gradient-to-br from-indigo-500 to-indigo-700 group-hover:from-indigo-700 group-hover:to-indigo-500 rounded-full p-2.5 opacity-0 group-hover:opacity-100 transition-all shadow-lg">
                                 <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                                 </svg>
@@ -112,14 +112,14 @@
                     </div>
 
                     <div class="p-4">
-                        <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-amber-500 transition leading-snug" x-text="book.name"></h2>
+                        <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent transition leading-snug" x-text="book.name"></h2>
 
                         <template x-if="book.authors && book.authors.length > 0">
                             <p class="text-xs text-gray-400 mb-3 truncate font-light" x-text="book.authors[0].name"></p>
                         </template>
 
                         <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-amber-500" x-text="`${book.price.toFixed(0)} ₽`"></span>
+                            <span class="text-xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent" x-text="`${book.price.toFixed(0)} ₽`"></span>
                             <template x-if="book.formats && book.formats.formats">
                                 <span class="text-xs text-gray-300 font-light" x-text="book.formats.formats.join(', ')"></span>
                             </template>
@@ -132,7 +132,7 @@
 
     <!-- Индикатор загрузки -->
     <div x-show="loading" class="mt-12 flex justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
     </div>
 
     <!-- Сообщение о конце списка -->
