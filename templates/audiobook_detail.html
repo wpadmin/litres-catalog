@@ -248,7 +248,152 @@
                 {{ audiobook.authors[0].name }}
             </a>
         </p>
+
+        <div x-data="authorCarousel('{{ audiobook.authors[0].slug }}')" class="relative" x-init="updateVisibleCount()">
+            <div class="overflow-hidden">
+                <div class="flex transition-transform duration-500 ease-out" :style="getTransform()">
+                    <template x-for="book in books" :key="book.slug">
+                        <div class="w-full md:w-1/2 lg:w-1/4 shrink-0 px-2">
+                            <div class="bg-white rounded-2xl hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-50">
+                                <a :href="'/audiobook/' + book.slug" class="block">
+                                    <div class="aspect-[2/3] relative overflow-hidden bg-gray-100">
+                                        <img
+                                            :src="book.image_url"
+                                            :alt="book.name"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                            loading="lazy"
+                                        >
+                                        <template x-if="book.fragment_url">
+                                            <div class="absolute top-3 right-3 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+                                                Есть фрагмент
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="p-4">
+                                        <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-amber-600 transition" x-text="book.name"></h3>
+                                        <template x-if="book.authors && book.authors.length > 0">
+                                            <p class="text-sm text-gray-500 mb-2 line-clamp-1" x-text="book.authors.join(', ')"></p>
+                                        </template>
+                                        <template x-if="book.genres && book.genres.length > 0">
+                                            <p class="text-xs text-gray-400 mb-3 line-clamp-1" x-text="book.genres.join(', ')"></p>
+                                        </template>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xl font-bold text-amber-500" x-text="formatPrice(book.price) + ' ₽'"></span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <template x-if="currentIndex > 0">
+                <button
+                    @click="prev"
+                    class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-500"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </template>
+
+            <template x-if="canGoNext()">
+                <button
+                    @click="next"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-500"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </template>
+
+            <template x-if="loading">
+                <div class="text-center py-8">
+                    <div class="inline-block w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            </template>
+        </div>
     </div>
 </div>
+
+<script>
+function authorCarousel(authorSlug) {
+    return {
+        books: [],
+        currentIndex: 0,
+        offset: 0,
+        visibleCount: 4,
+        hasMore: false,
+        loading: false,
+        total: 0,
+
+        init() {
+            this.updateVisibleCount();
+            this.loadBooks();
+            window.addEventListener('resize', () => this.updateVisibleCount());
+        },
+
+        updateVisibleCount() {
+            const width = window.innerWidth;
+            if (width < 768) {
+                this.visibleCount = 1;
+            } else if (width < 1024) {
+                this.visibleCount = 2;
+            } else {
+                this.visibleCount = 4;
+            }
+        },
+
+        getTransform() {
+            const percent = (this.currentIndex * (100 / this.visibleCount));
+            return `transform: translateX(-${percent}%)`;
+        },
+
+        async loadBooks() {
+            this.loading = true;
+            try {
+                const limit = this.visibleCount + 5;
+                const response = await fetch(`/api/author/${authorSlug}/books?offset=${this.offset}&limit=${limit}`);
+                const data = await response.json();
+
+                this.books = data.books;
+                this.hasMore = data.has_more;
+                this.total = data.total;
+            } catch (error) {
+                console.error('Failed to load books:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        canGoNext() {
+            return this.currentIndex + this.visibleCount < this.books.length || this.hasMore;
+        },
+
+        async next() {
+            if (this.currentIndex + this.visibleCount < this.books.length) {
+                this.currentIndex++;
+            } else if (this.hasMore) {
+                this.offset++;
+                await this.loadBooks();
+                this.currentIndex++;
+            }
+        },
+
+        async prev() {
+            if (this.currentIndex > 0) {
+                this.currentIndex--;
+                if (this.currentIndex < this.offset && this.offset > 0) {
+                    this.offset--;
+                    await this.loadBooks();
+                }
+            }
+        }
+    }
+}
+</script>
 {% endif %}
 {% endblock %}
