@@ -126,7 +126,7 @@
 
                 <div class="bg-gray-50 rounded-2xl p-6 space-y-4">
                     <div class="flex items-baseline gap-3">
-                        <span class="text-5xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                        <span class="text-5xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-sm text-gray-400">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
@@ -218,7 +218,7 @@
 
                         <div class="flex items-center gap-4">
                             {% if book.price %}
-                            <span class="text-2xl font-bold text-amber-500">{{ book.price }} ₽</span>
+                            <span class="text-2xl font-bold text-amber-500">{{ book.price|price }} ₽</span>
                             {% endif %}
                             <a
                                 href="{{ book.url }}"

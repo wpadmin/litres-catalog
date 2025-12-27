@@ -105,7 +105,7 @@
                             <div class="p-3">
                                 <h3 class="text-sm font-medium text-gray-900 line-clamp-2 mb-1 group-hover:text-amber-500 transition" x-text="book.name"></h3>
                                 <p class="text-xs text-gray-400 mb-2 truncate" x-text="book.genres[0] || ''"></p>
-                                <span class="text-lg font-bold text-amber-500" x-text="book.price + ' ₽'"></span>
+                                <span class="text-lg font-bold text-amber-500" x-text="formatPrice(book.price) + ' ₽'"></span>
                             </div>
                         </a>
                     </template>
@@ -199,7 +199,7 @@
                         {% endif %}
 
                         <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                            <span class="text-xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
                             {% if audiobook.formats and audiobook.formats.formats %}
                             <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
                             {% endif %}

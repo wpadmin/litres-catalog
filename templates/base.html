@@ -67,7 +67,7 @@
                                     <p class="text-sm font-medium text-gray-900 truncate" x-text="item.name"></p>
                                     <p class="text-xs text-gray-500" x-text="item.authors"></p>
                                 </div>
-                                <span class="text-sm font-semibold text-indigo-600" x-text="item.price + ' ₽'"></span>
+                                <span class="text-sm font-semibold text-indigo-600" x-text="formatPrice(item.price) + ' ₽'"></span>
                             </a>
                         </template>
                     </div>
@@ -122,6 +122,16 @@
     </footer>
 
     <script>
+        function formatPrice(value) {
+            if (typeof value === 'number') {
+                if (value === Math.floor(value)) {
+                    return Math.floor(value).toString();
+                }
+                return value.toFixed(2).replace(/\.?0+$/, '');
+            }
+            return String(value);
+        }
+
         function searchComponent() {
             return {
                 query: '',

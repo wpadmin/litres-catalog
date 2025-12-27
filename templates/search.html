@@ -62,7 +62,7 @@
                     {% endif %}
 
                     <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-amber-500">{{ audiobook.price }} ₽</span>
+                        <span class="text-xl font-bold text-amber-500">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-xs text-gray-300 font-light">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
