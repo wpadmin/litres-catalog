@@ -40,10 +40,11 @@ async def authors_list_api(
 async def authors_list(
     request: Request,
     page: int = 1,
+    letter: str = None,
     db: AsyncSession = Depends(get_db)
 ):
     limit = 100
-    cache_key = f"authors_list_{page}"
+    cache_key = f"authors_list_{page}_{letter or 'all'}"
     cached = await cache_get(cache_key)
 
     if cached:
@@ -54,12 +55,20 @@ async def authors_list(
     else:
         offset = (page - 1) * limit
 
-        result = await db.execute(
-            select(Author).order_by(Author.name).limit(limit).offset(offset)
-        )
+        # Фильтрация по букве
+        query = select(Author).order_by(Author.name)
+        count_query = select(func.count(Author.id))
+
+        if letter:
+            query = query.where(Author.name.like(f"{letter}%"))
+            count_query = count_query.where(Author.name.like(f"{letter}%"))
+
+        query = query.limit(limit).offset(offset)
+
+        result = await db.execute(query)
         authors_objs = result.scalars().all()
 
-        total = await db.scalar(select(func.count(Author.id)))
+        total = await db.scalar(count_query)
         total_pages = (total + limit - 1) // limit
 
         cache_data = {
