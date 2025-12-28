@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response
+from fastapi.responses import Response, PlainTextResponse
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
@@ -218,3 +218,30 @@ async def sitemap_articles(db: AsyncSession = Depends(get_db)):
     xml_content = wrap_urlset("\n".join(urls))
     await cache_set(cache_key, xml_content, ttl=CACHE_TTL)
     return Response(content=xml_content, media_type="application/xml")
+
+
+@router.get("/robots.txt")
+async def robots_txt():
+    content = """User-agent: *
+Allow: /
+
+Sitemap: https://bigear.ru/sitemap.xml
+
+# Блокировка AI-краулеров
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+Crawl-delay: 1"""
+    return PlainTextResponse(content=content)
