@@ -27,6 +27,15 @@ audiobook_textbook = Table(
     Column("created_at", DateTime, default=datetime.utcnow, nullable=False),
 )
 
+guide_audiobook = Table(
+    "guide_audiobook",
+    Base.metadata,
+    Column("guide_id", Integer, ForeignKey("guides.id", ondelete="CASCADE"), primary_key=True),
+    Column("audiobook_id", Integer, ForeignKey("audiobooks.id", ondelete="CASCADE"), primary_key=True),
+    Column("position", Integer, nullable=False),
+    Column("comment", Text, nullable=True),
+)
+
 
 class Author(Base):
     __tablename__ = "authors"
@@ -100,6 +109,12 @@ class Audiobook(Base):
         order_by="desc(TextBook.year), TextBook.price"
     )
 
+    guides: Mapped[List["Guide"]] = relationship(
+        "Guide",
+        secondary=guide_audiobook,
+        back_populates="audiobooks"
+    )
+
     __table_args__ = (
         Index("idx_audiobook_name_search", "name"),
         Index("idx_audiobook_price", "price"),
@@ -146,4 +161,25 @@ class TextBook(Base):
         Index("idx_textbook_lookup", "normalized_key", "author_normalized"),
         Index("idx_textbook_year", "year"),
         Index("idx_textbook_price", "price"),
+    )
+
+
+class Guide(Base):
+    """Подборка книг (статья в разделе 'Подборки')"""
+    __tablename__ = "guides"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    slug: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    cover_image: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    md_file: Mapped[str] = mapped_column(String(255), nullable=False)
+    views: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    audiobooks: Mapped[List["Audiobook"]] = relationship(
+        "Audiobook",
+        secondary=guide_audiobook,
+        back_populates="guides"
     )

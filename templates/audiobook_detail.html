@@ -129,7 +129,7 @@
 
                 <div class="bg-indigo-50 rounded-2xl p-6 space-y-4">
                     <div class="flex items-baseline gap-3">
-                        <span class="text-5xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ audiobook.price|price }} ₽</span>
+                        <span class="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ audiobook.price|price }} ₽</span>
                         {% if audiobook.formats and audiobook.formats.formats %}
                         <span class="text-sm text-gray-400">{{ audiobook.formats.formats|join(', ') }}</span>
                         {% endif %}
@@ -139,7 +139,7 @@
                         href="{{ audiobook.url }}"
                         target="_blank"
                         rel="nofollow noopener"
-                        class="block w-full bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white text-center px-8 py-4 rounded-full font-semibold text-lg transition-all shadow-lg hover:shadow-xl"
+                        class="block w-full bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white text-center px-4 py-3 md:px-8 md:py-4 rounded-full font-semibold text-base md:text-lg transition-all shadow-lg hover:shadow-xl"
                     >
                         Купить и скачать на ЛитРес
                     </a>
@@ -191,16 +191,16 @@
 
         <div class="space-y-4">
             {% for book in audiobook.text_versions %}
-            <div class="bg-white rounded-lg p-6 hover:shadow-md transition border border-gray-100">
-                <div class="flex gap-6">
+            <div class="bg-white rounded-lg p-4 md:p-6 hover:shadow-md transition border border-gray-100">
+                <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
                     {% if book.image_url %}
-                    <img src="{{ book.image_url }}" alt="{{ book.name }}" class="w-24 h-32 object-cover rounded">
+                    <img src="{{ book.image_url }}" alt="{{ book.name }}" class="w-20 h-28 sm:w-24 sm:h-32 object-cover rounded shrink-0 mx-auto sm:mx-0">
                     {% endif %}
 
-                    <div class="flex-1">
-                        <h3 class="text-lg text-gray-900 mb-2">{{ book.name }}</h3>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base md:text-lg text-gray-900 mb-2">{{ book.name }}</h3>
 
-                        <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                        <div class="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">
                             {% if book.publisher %}
                             <span>Издательство: {{ book.publisher }}</span>
                             {% endif %}
@@ -213,18 +213,18 @@
                         </div>
 
                         {% if book.description %}
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ book.description }}</p>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2">{{ book.description }}</p>
                         {% endif %}
 
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                             {% if book.price %}
-                            <span class="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ book.price|price }} ₽</span>
+                            <span class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">{{ book.price|price }} ₽</span>
                             {% endif %}
                             <a
                                 href="{{ book.url }}"
                                 target="_blank"
                                 rel="nofollow noopener"
-                                class="px-6 py-2 bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white rounded-full font-medium transition"
+                                class="w-full sm:w-auto text-center px-4 sm:px-6 py-2 bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-700 hover:to-indigo-500 text-white rounded-full font-medium text-sm sm:text-base transition"
                             >
                                 Купить на ЛитРес
                             </a>
