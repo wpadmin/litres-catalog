@@ -7,7 +7,7 @@
   --font-serif: Playfair Display, Georgia, Cambria, Times New Roman, Times, serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1 {
   font-family: var(--font-serif);
   font-weight: 500;
 }
