@@ -49,52 +49,53 @@ async def authors_list(
     db: AsyncSession = Depends(get_db)
 ):
     limit = 100
-    cache_key = f"authors_list_{page}_{letter or 'all'}"
-    cached = await cache_get(cache_key)
 
-    if cached:
-        data = json.loads(cached)
-        authors = data["authors"]
-        total = data["total"]
-        total_pages = data["total_pages"]
+    # Кешируем всех отсортированных авторов один раз
+    all_authors_cache_key = "all_authors_sorted"
+    cached_all = await cache_get(all_authors_cache_key)
+
+    if cached_all:
+        all_authors_data = json.loads(cached_all)
     else:
-        offset = (page - 1) * limit
-
-        # Получаем всех авторов
+        # Получаем всех авторов из БД
         query = select(Author)
         result = await db.execute(query)
         all_authors = result.scalars().all()
 
-        # Фильтруем и сортируем в Python по фамилии
-        if letter:
-            filtered_authors = [
-                a for a in all_authors
-                if get_last_name(a.name).upper().startswith(letter.upper())
-            ]
-        else:
-            filtered_authors = all_authors
-
-        # Сортируем по фамилии
+        # Сортируем по фамилии один раз
         sorted_authors = sorted(
-            filtered_authors,
+            all_authors,
             key=lambda a: get_last_name(a.name).lower()
         )
 
-        total = len(sorted_authors)
-        total_pages = (total + limit - 1) // limit
+        all_authors_data = [
+            {"id": a.id, "name": a.name, "slug": a.slug, "last_name": get_last_name(a.name)}
+            for a in sorted_authors
+        ]
 
-        # Применяем пагинацию
-        start = offset
-        end = offset + limit
-        paginated_authors = sorted_authors[start:end]
+        # Кешируем на 1 час
+        await cache_set(all_authors_cache_key, json.dumps(all_authors_data), ttl=3600)
 
-        cache_data = {
-            "authors": [{"id": a.id, "name": a.name, "slug": a.slug} for a in paginated_authors],
-            "total": total,
-            "total_pages": total_pages
-        }
-        await cache_set(cache_key, json.dumps(cache_data), ttl=600)
-        authors = cache_data["authors"]
+    # Фильтруем по букве (быстро, работаем с массивом в памяти)
+    if letter:
+        filtered_authors = [
+            a for a in all_authors_data
+            if a["last_name"].upper().startswith(letter.upper())
+        ]
+    else:
+        filtered_authors = all_authors_data
+
+    total = len(filtered_authors)
+    total_pages = (total + limit - 1) // limit
+
+    # Применяем пагинацию
+    offset = (page - 1) * limit
+    start = offset
+    end = offset + limit
+    paginated_authors = filtered_authors[start:end]
+
+    # Убираем last_name из ответа (он нужен только для фильтрации)
+    authors = [{"id": a["id"], "name": a["name"], "slug": a["slug"]} for a in paginated_authors]
 
     return templates.TemplateResponse(
         "authors_list.html",
