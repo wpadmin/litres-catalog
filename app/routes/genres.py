@@ -39,33 +39,26 @@ async def genres_list_api(
 @router.get("/genres", response_class=HTMLResponse, name="genres_list")
 async def genres_list(
     request: Request,
-    page: int = 1,
     db: AsyncSession = Depends(get_db)
 ):
-    limit = 100
-    cache_key = f"genres_list_{page}"
+    cache_key = "genres_list_all"
     cached = await cache_get(cache_key)
 
     if cached:
         data = json.loads(cached)
         genres = data["genres"]
         total = data["total"]
-        total_pages = data["total_pages"]
     else:
-        offset = (page - 1) * limit
-
         result = await db.execute(
-            select(Genre).where(Genre.parent_id == None).order_by(Genre.name).limit(limit).offset(offset)
+            select(Genre).where(Genre.parent_id == None).order_by(Genre.name)
         )
         genres_objs = result.scalars().all()
 
-        total = await db.scalar(select(func.count(Genre.id)).where(Genre.parent_id == None))
-        total_pages = (total + limit - 1) // limit
+        total = len(genres_objs)
 
         cache_data = {
             "genres": [{"id": g.id, "name": g.name, "slug": g.slug} for g in genres_objs],
-            "total": total,
-            "total_pages": total_pages
+            "total": total
         }
         await cache_set(cache_key, json.dumps(cache_data), ttl=600)
         genres = cache_data["genres"]
@@ -75,8 +68,6 @@ async def genres_list(
         {
             "request": request,
             "genres": genres,
-            "page": page,
-            "total_pages": total_pages,
             "total": total,
         }
     )
