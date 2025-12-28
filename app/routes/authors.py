@@ -12,6 +12,11 @@ import json
 router = APIRouter()
 
 
+def get_last_name(full_name: str) -> str:
+    """Извлекает фамилию (последнее слово) из полного имени."""
+    return full_name.strip().split()[-1] if full_name else ""
+
+
 @router.get("/api/authors", response_class=JSONResponse, name="authors_list_api")
 async def authors_list_api(
     request: Request,
@@ -55,24 +60,36 @@ async def authors_list(
     else:
         offset = (page - 1) * limit
 
-        # Фильтрация по букве
-        query = select(Author).order_by(Author.name)
-        count_query = select(func.count(Author.id))
-
-        if letter:
-            query = query.where(Author.name.like(f"{letter}%"))
-            count_query = count_query.where(Author.name.like(f"{letter}%"))
-
-        query = query.limit(limit).offset(offset)
-
+        # Получаем всех авторов
+        query = select(Author)
         result = await db.execute(query)
-        authors_objs = result.scalars().all()
+        all_authors = result.scalars().all()
 
-        total = await db.scalar(count_query)
+        # Фильтруем и сортируем в Python по фамилии
+        if letter:
+            filtered_authors = [
+                a for a in all_authors
+                if get_last_name(a.name).upper().startswith(letter.upper())
+            ]
+        else:
+            filtered_authors = all_authors
+
+        # Сортируем по фамилии
+        sorted_authors = sorted(
+            filtered_authors,
+            key=lambda a: get_last_name(a.name).lower()
+        )
+
+        total = len(sorted_authors)
         total_pages = (total + limit - 1) // limit
 
+        # Применяем пагинацию
+        start = offset
+        end = offset + limit
+        paginated_authors = sorted_authors[start:end]
+
         cache_data = {
-            "authors": [{"id": a.id, "name": a.name, "slug": a.slug} for a in authors_objs],
+            "authors": [{"id": a.id, "name": a.name, "slug": a.slug} for a in paginated_authors],
             "total": total,
             "total_pages": total_pages
         }
