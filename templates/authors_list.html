@@ -15,11 +15,11 @@
         <!-- Alphabet filter -->
         <div class="mb-8 overflow-x-auto">
             <div class="flex flex-wrap justify-center gap-2">
-                <a href="/authors" class="px-3 py-2 rounded-lg text-sm font-medium transition {% if not request.args.get('letter') %}bg-gradient-to-r from-indigo-500 to-indigo-700 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600{% endif %}">
+                <a href="/authors" class="px-3 py-2 rounded-lg text-sm font-medium transition {% if not request.query_params.get('letter') %}bg-gradient-to-r from-indigo-500 to-indigo-700 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600{% endif %}">
                     Все
                 </a>
                 {% for letter in 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ' %}
-                <a href="/authors?letter={{ letter }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {% if request.args.get('letter') == letter %}bg-gradient-to-r from-indigo-500 to-indigo-700 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600{% endif %}">
+                <a href="/authors?letter={{ letter }}" class="px-3 py-2 rounded-lg text-sm font-medium transition {% if request.query_params.get('letter') == letter %}bg-gradient-to-r from-indigo-500 to-indigo-700 text-white{% else %}bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600{% endif %}">
                     {{ letter }}
                 </a>
                 {% endfor %}
@@ -40,7 +40,7 @@
         {% if total_pages > 1 %}
         <div class="mt-12 flex justify-center">
             <nav class="flex gap-2">
-                {% set letter_param = '&letter=' + request.args.get('letter') if request.args.get('letter') else '' %}
+                {% set letter_param = '&letter=' + request.query_params.get('letter') if request.query_params.get('letter') else '' %}
                 {% if page > 1 %}
                 <a href="/authors?page={{ page - 1 }}{{ letter_param }}"
                    class="px-4 py-2 border rounded-lg hover:bg-gray-50">← Назад</a>
