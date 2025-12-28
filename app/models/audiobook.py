@@ -27,15 +27,6 @@ audiobook_textbook = Table(
     Column("created_at", DateTime, default=datetime.utcnow, nullable=False),
 )
 
-guide_audiobook = Table(
-    "guide_audiobook",
-    Base.metadata,
-    Column("guide_id", Integer, ForeignKey("guides.id", ondelete="CASCADE"), primary_key=True),
-    Column("audiobook_id", Integer, ForeignKey("audiobooks.id", ondelete="CASCADE"), primary_key=True),
-    Column("position", Integer, nullable=False),
-    Column("comment", Text, nullable=True),
-)
-
 
 class Author(Base):
     __tablename__ = "authors"
@@ -109,12 +100,6 @@ class Audiobook(Base):
         order_by="desc(TextBook.year), TextBook.price"
     )
 
-    guides: Mapped[List["Guide"]] = relationship(
-        "Guide",
-        secondary=guide_audiobook,
-        back_populates="audiobooks"
-    )
-
     __table_args__ = (
         Index("idx_audiobook_name_search", "name"),
         Index("idx_audiobook_price", "price"),
@@ -177,9 +162,3 @@ class Guide(Base):
     views: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
-    audiobooks: Mapped[List["Audiobook"]] = relationship(
-        "Audiobook",
-        secondary=guide_audiobook,
-        back_populates="guides"
-    )

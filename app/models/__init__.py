@@ -7,7 +7,6 @@ from app.models.audiobook import (
     audiobook_author,
     audiobook_genre,
     audiobook_textbook,
-    guide_audiobook,
 )
 
 __all__ = [
@@ -19,5 +18,4 @@ __all__ = [
     "audiobook_author",
     "audiobook_genre",
     "audiobook_textbook",
-    "guide_audiobook",
 ]

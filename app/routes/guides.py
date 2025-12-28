@@ -3,13 +3,14 @@ import markdown
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
+from app.database import get_db, get_redis
 from app.services.guide_service import GuideService
 from app.templates import templates
+from redis.asyncio import Redis
 
 router = APIRouter()
 
-GUIDES_DIR = "guides"
+GUIDES_DIR = "articles"
 
 
 @router.get("/guides/", response_class=HTMLResponse, name="guides_list")
@@ -34,10 +35,11 @@ async def guides_list(
 async def guide_detail(
     slug: str,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis)
 ):
     """Детальная страница подборки"""
-    service = GuideService(db)
+    service = GuideService(db, redis)
     guide = await service.get_by_slug(slug)
 
     if not guide:
@@ -47,8 +49,11 @@ async def guide_detail(
             status_code=404
         )
 
-    # Увеличиваем счётчик просмотров
-    await service.increment_views(guide.id)
+    # Получаем IP клиента
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Увеличиваем счётчик просмотров (с ограничением по IP)
+    await service.increment_views(guide.id, client_ip)
 
     # Читаем MD файл и конвертируем в HTML
     md_path = os.path.join(GUIDES_DIR, guide.md_file)
@@ -60,6 +65,13 @@ async def guide_detail(
             content_html = markdown.markdown(
                 md_content,
                 extensions=['extra', 'codehilite', 'toc']
+            )
+            # Add target="_blank" to all external links
+            import re
+            content_html = re.sub(
+                r'<a href="(https?://[^"]+)"',
+                r'<a href="\1" target="_blank" rel="noopener noreferrer"',
+                content_html
             )
 
     return templates.TemplateResponse(

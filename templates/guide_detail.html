@@ -40,44 +40,6 @@
         </div>
     </div>
 
-    <!-- Books from this guide -->
-    {% if guide.audiobooks %}
-    <div class="bg-gradient-to-b from-white to-indigo-50 py-16">
-        <div class="container mx-auto px-4">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Аудиокниги из подборки</h2>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {% for audiobook in guide.audiobooks %}
-                    <a href="/audiobook/{{ audiobook.slug }}" class="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 hover:border-yellow-500">
-                        <div class="aspect-[2/3] overflow-hidden bg-gradient-to-br from-indigo-100 to-amber-100">
-                            {% if audiobook.image_url %}
-                            <img src="{{ audiobook.image_url }}" alt="{{ audiobook.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-                            {% else %}
-                            <div class="w-full h-full flex items-center justify-center">
-                                <svg class="w-16 h-16 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
-                                </svg>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="p-4">
-                            <h2 class="text-sm font-medium text-gray-900 line-clamp-2 mb-2 group-hover:bg-gradient-to-r group-hover:from-yellow-500 group-hover:to-amber-600 group-hover:bg-clip-text group-hover:text-transparent transition leading-snug font-sans">
-                                {{ audiobook.name }}
-                            </h2>
-                            {% if audiobook.authors %}
-                            <p class="text-xs text-gray-600 line-clamp-1">
-                                {{ audiobook.authors[0].name }}
-                            </p>
-                            {% endif %}
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <!-- CTA back to guides -->
     <div class="bg-white py-12">
         <div class="container mx-auto px-4 text-center">
