@@ -30,7 +30,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "app,alembic,scripts,static,templates,alembic.ini,requirements.txt,.env.example"
+          source: "app,alembic,scripts,static,templates,articles,alembic.ini,requirements.txt,.env.example"
           target: "~/bigear.ru"
           strip_components: 0
 
