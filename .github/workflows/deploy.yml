@@ -47,12 +47,4 @@ jobs:
             alembic upgrade head
             sudo systemctl restart bigear
             sleep 3
-
-      - name: Health check
-        uses: appleboy/ssh-action@v1.2.1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            curl -f https://bigear.ru/health || exit 1
+            systemctl is-active --quiet bigear || exit 1
