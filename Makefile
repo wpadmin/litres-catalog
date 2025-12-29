@@ -16,13 +16,13 @@ help:
 
 up:
 	docker-compose up -d
-	@echo.
-	@echo Services started!
-	@echo Site: http://localhost:8765
-	@echo PostgreSQL: localhost:5433
-	@echo Redis: localhost:6379
-	@echo.
-	@echo View logs: make logs
+	@echo ""
+	@echo "Services started!"
+	@echo "Site: http://localhost:8765"
+	@echo "PostgreSQL: localhost:5433"
+	@echo "Redis: localhost:6379"
+	@echo ""
+	@echo "View logs: make logs"
 
 down:
 	docker-compose down
