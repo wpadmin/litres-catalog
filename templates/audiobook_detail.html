@@ -208,7 +208,7 @@
                             <span>Год: {{ book.year }}</span>
                             {% endif %}
                             {% if book.formats %}
-                            <span>Форматы: {{ book.formats }}</span>
+                            <span class="break-all">Форматы: {{ book.formats }}</span>
                             {% endif %}
                         </div>
 
@@ -291,7 +291,7 @@
             <template x-if="currentIndex > 0">
                 <button
                     @click="prev"
-                    class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent"
+                    class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-600"
                 >
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -302,7 +302,7 @@
             <template x-if="canGoNext()">
                 <button
                     @click="next"
-                    class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent"
+                    class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 bg-white rounded-full shadow-lg hover:shadow-xl transition flex items-center justify-center text-gray-700 hover:text-amber-600"
                 >
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
